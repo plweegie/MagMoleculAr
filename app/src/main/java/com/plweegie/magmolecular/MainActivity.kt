@@ -1,9 +1,11 @@
 package com.plweegie.magmolecular
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import com.plweegie.magmolecular.ar.MagMolActivity
 import com.plweegie.magmolecular.rendering.AndroidModelBuilder3D
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
@@ -33,7 +35,8 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         modelBuilder = AndroidModelBuilder3D.getInstance(builder)
 
         get_atoms_btn?.setOnClickListener {
-            parseSmiles()
+            val intent = Intent(this, MagMolActivity::class.java)
+            startActivity(intent)
         }
     }
 

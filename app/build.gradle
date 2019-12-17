@@ -55,6 +55,7 @@ dependencies {
     implementation 'org.openscience.cdk:cdk-data:2.3'
     implementation 'org.openscience.cdk:cdk-standard:2.3'
     implementation 'org.openscience.cdk:cdk-io:2.3'
+    implementation 'org.openscience.cdk:cdk-builder3d:2.3'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
