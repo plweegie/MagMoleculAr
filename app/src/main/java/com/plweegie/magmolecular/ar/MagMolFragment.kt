@@ -1,7 +1,11 @@
 package com.plweegie.magmolecular.ar
 
 import android.content.Context
+import android.os.Bundle
 import android.util.DisplayMetrics
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import com.google.ar.sceneform.math.Quaternion
 import com.google.ar.sceneform.math.Vector3
 import com.google.ar.sceneform.ux.*
@@ -22,6 +26,16 @@ class MagMolFragment : ArFragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         //TODO add OpenGL check
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val view = super.onCreateView(inflater, container, savedInstanceState)
+
+        planeDiscoveryController.hide()
+        planeDiscoveryController.setInstructionView(null)
+        arSceneView.planeRenderer.isEnabled = false
+
+        return view
     }
 
     override fun makeTransformationSystem(): TransformationSystem {

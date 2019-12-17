@@ -36,6 +36,7 @@ import org.openscience.cdk.interfaces.IBond;
 import org.openscience.cdk.interfaces.IChemObjectBuilder;
 import org.openscience.cdk.interfaces.IRingSet;
 import org.openscience.cdk.layout.AtomPlacer;
+import org.openscience.cdk.modeling.builder3d.TemplateHandler3D;
 import org.openscience.cdk.ringsearch.RingPartitioner;
 import org.openscience.cdk.tools.ILoggingTool;
 import org.openscience.cdk.tools.LoggingToolFactory;
@@ -77,7 +78,7 @@ public class AndroidModelBuilder3D {
 
     private static Map<String, AndroidModelBuilder3D> memyselfandi    = new HashMap<String, AndroidModelBuilder3D>();
 
-    private AndroidTemplateHandler3D                  templateHandler = null;
+    private TemplateHandler3D templateHandler = null;
 
     private Map                                parameterSet    = null;
 
@@ -94,13 +95,13 @@ public class AndroidModelBuilder3D {
      * @param  templateHandler  templateHandler Object
      * @param  ffname           name of force field
      */
-    private AndroidModelBuilder3D(AndroidTemplateHandler3D templateHandler, String ffname, IChemObjectBuilder builder)
+    private AndroidModelBuilder3D(TemplateHandler3D templateHandler, String ffname, IChemObjectBuilder builder)
             throws CDKException {
         setTemplateHandler(templateHandler);
         setForceField(ffname, builder);
     }
 
-    public static AndroidModelBuilder3D getInstance(AndroidTemplateHandler3D templateHandler, String ffname,
+    public static AndroidModelBuilder3D getInstance(TemplateHandler3D templateHandler, String ffname,
                                              IChemObjectBuilder chemObjectBuilder) throws CDKException {
         if (ffname == null || ffname.length() == 0) throw new CDKException("The given ffname is null or empty!");
         if (templateHandler == null) throw new CDKException("The given template handler is null!");
@@ -115,7 +116,7 @@ public class AndroidModelBuilder3D {
     }
 
     public static AndroidModelBuilder3D getInstance(IChemObjectBuilder builder) throws CDKException {
-        return getInstance(AndroidTemplateHandler3D.getInstance(), "mm2", builder);
+        return getInstance(TemplateHandler3D.getInstance(), "mm2", builder);
     }
 
     /**
@@ -604,7 +605,7 @@ public class AndroidModelBuilder3D {
      *
      * @param  templateHandler  The new templateHandler value
      */
-    private void setTemplateHandler(AndroidTemplateHandler3D templateHandler) throws CDKException {
+    private void setTemplateHandler(TemplateHandler3D templateHandler) throws CDKException {
         if (templateHandler == null) throw new NullPointerException("The given template handler is null!");
 
         this.templateHandler = templateHandler;
