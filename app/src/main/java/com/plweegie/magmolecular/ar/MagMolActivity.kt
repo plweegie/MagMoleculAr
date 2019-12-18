@@ -8,13 +8,14 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.ar.sceneform.Node
 import com.google.ar.sceneform.math.Vector3
-import com.google.ar.sceneform.rendering.*
+import com.google.ar.sceneform.rendering.Material
+import com.google.ar.sceneform.rendering.ShapeFactory
 import com.google.ar.sceneform.ux.ArFragment
 import com.plweegie.magmolecular.R
 import com.plweegie.magmolecular.rendering.AndroidModelBuilder3D
+import com.plweegie.magmolecular.utils.ArMolecule
 import kotlinx.android.synthetic.main.activity_mag_mol.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.future.await
 import org.openscience.cdk.DefaultChemObjectBuilder
 import org.openscience.cdk.exception.InvalidSmilesException
 import org.openscience.cdk.interfaces.IAtom
@@ -38,7 +39,6 @@ class MagMolActivity : AppCompatActivity() {
     private lateinit var arFragment: ArFragment
 
     private var smiles: String? = null
-    private var sphereRenderable: ModelRenderable? = null
 
     private val renderableJob = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main + renderableJob)
@@ -62,32 +62,27 @@ class MagMolActivity : AppCompatActivity() {
     private suspend fun parseSmiles(smiles: String?) {
         loading_pb?.visibility = View.VISIBLE
 
-        sphereRenderable = getModelRenderable(this@MagMolActivity)
+        try {
+            val atomContainer = smilesParser.parseSmiles(smiles)
 
-        sphereRenderable?.let {
-            try {
-                val atomContainer = smilesParser.parseSmiles(smiles)
+            val atoms3d = get3DCoordinates(atomContainer)
+            val arMolecule = ArMolecule(atoms3d, this)
 
-                val atoms3d = get3DCoordinates(atomContainer)
-                atoms3d.forEach { atom ->
-                    with(atom.point3d) {
-                        val coords = Vector3(x.toFloat(), y.toFloat(), z.toFloat())
-                        addRenderable(coords)
-                    }
-                }
-
-            } catch (e: InvalidSmilesException) {
-                Toast.makeText(this, "Invalid SMILES", Toast.LENGTH_SHORT).show()
+            arMolecule.renderableAtoms.forEach { (atom, material) ->
+                val coords = Vector3(atom.xCoord, atom.yCoord, atom.zCoord)
+                addRenderable(coords, material.await())
             }
+        } catch (e: InvalidSmilesException) {
+            Toast.makeText(this, "Invalid SMILES", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun addRenderable(position: Vector3) {
+    private fun addRenderable(position: Vector3, material: Material) {
         loading_pb?.visibility = View.GONE
 
         val node = Node().apply {
             worldPosition = Vector3.subtract(position.scaled(0.05f), Vector3(0.0f, 0.2f, 0.5f))
-            renderable = sphereRenderable
+            renderable = ShapeFactory.makeSphere(0.05f, Vector3.zero(), material)
         }
 
         arFragment.arSceneView.scene.addChild(node)
@@ -98,11 +93,6 @@ class MagMolActivity : AppCompatActivity() {
             modelBuilder.generate3DCoordinates(atomContainer, false)
         }
         return atomContainer3D.atoms().toList()
-    }
-
-    private suspend fun getModelRenderable(context: Context): ModelRenderable {
-        val material = MaterialFactory.makeOpaqueWithColor(context, Color(android.graphics.Color.BLACK)).await()
-        return ShapeFactory.makeSphere(0.05f, Vector3.zero(), material)
     }
 
     override fun onDestroy() {
