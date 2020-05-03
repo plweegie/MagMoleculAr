@@ -53,21 +53,32 @@ class MagMolFragment : ArFragment() {
                 override fun onUpdated(gesture: DragGesture?) {
                     endPosition = gesture?.position
                     val angle = getRotationAngle(startPosition, endPosition)
-                    gesture?.targetNode?.localRotation = Quaternion.multiply(
-                        gesture?.targetNode?.localRotation,
-                        Quaternion.axisAngle(Vector3.up(), angle)
+                    val rotationAxis = gesture?.targetNode?.parent?.worldPosition
+                    val adjustedRotationAxis = Vector3(rotationAxis!!.x, rotationAxis.z, rotationAxis.y)
+
+                    gesture.targetNode?.parent?.localRotation = Quaternion.multiply(
+                        gesture.targetNode?.parent?.localRotation,
+                        Quaternion.axisAngle(rotationAxis, angle)
                     )
                 }
 
                 override fun onFinished(gesture: DragGesture?) {}
             })
         }
-        transformationSystem.addGestureRecognizer(dragGestureRecognizer)
+        transformationSystem.apply {
+            addGestureRecognizer(dragGestureRecognizer)
+            selectionVisualizer = NullVisualizer()
+        }
         return transformationSystem
     }
 
     private fun getRotationAngle(startPosition: Vector3, endPosition: Vector3): Float {
         val diff = endPosition.x - startPosition.x
         return  (10 * diff) / displayMetrics.widthPixels
+    }
+
+    class NullVisualizer : SelectionVisualizer {
+        override fun applySelectionVisual(node: BaseTransformableNode?) {}
+        override fun removeSelectionVisual(node: BaseTransformableNode?) {}
     }
 }

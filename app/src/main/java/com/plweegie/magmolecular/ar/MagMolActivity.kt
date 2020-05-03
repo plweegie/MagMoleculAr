@@ -6,11 +6,13 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.ar.sceneform.AnchorNode
 import com.google.ar.sceneform.Node
 import com.google.ar.sceneform.math.Vector3
 import com.google.ar.sceneform.rendering.Material
 import com.google.ar.sceneform.rendering.ShapeFactory
 import com.google.ar.sceneform.ux.ArFragment
+import com.google.ar.sceneform.ux.TransformableNode
 import com.plweegie.magmolecular.R
 import com.plweegie.magmolecular.rendering.AndroidModelBuilder3D
 import com.plweegie.magmolecular.utils.ArMolecule
@@ -38,6 +40,7 @@ class MagMolActivity : AppCompatActivity() {
     private lateinit var modelBuilder: AndroidModelBuilder3D
     private lateinit var arFragment: ArFragment
 
+    private var transformableNode: TransformableNode? = null
     private var smiles: String? = null
 
     private val renderableJob = Job()
@@ -68,25 +71,40 @@ class MagMolActivity : AppCompatActivity() {
             val atoms3d = get3DCoordinates(atomContainer)
             val arMolecule = ArMolecule(atoms3d, this)
 
+            addCenterOfMass(Vector3(arMolecule.centerCoordX, arMolecule.centerCoordY, arMolecule.centerCoordZ))
+
             arMolecule.renderableAtoms.forEach { (atom, material) ->
                 val coords = Vector3(atom.xCoord, atom.yCoord, atom.zCoord)
-                addRenderable(coords, material.await())
+                renderAtom(coords, material.await())
             }
         } catch (e: InvalidSmilesException) {
             Toast.makeText(this, "Invalid SMILES", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun addRenderable(position: Vector3, material: Material) {
-        loading_pb?.visibility = View.GONE
-
-        val node = Node().apply {
-            worldPosition = Vector3.subtract(position.scaled(0.05f), Vector3(0.0f, 0.2f, 0.5f))
-            renderable = ShapeFactory.makeSphere(0.05f, Vector3.zero(), material)
+    private fun addCenterOfMass(position: Vector3) {
+        val anchorNode = AnchorNode().apply {
+            worldPosition = position.adjustPosition()
+        }
+        transformableNode = TransformableNode(arFragment.transformationSystem).apply {
+            setParent(anchorNode)
         }
 
-        arFragment.arSceneView.scene.addChild(node)
+        arFragment.arSceneView.scene.addChild(anchorNode)
     }
+
+    private fun renderAtom(position: Vector3, material: Material) {
+        loading_pb?.visibility = View.GONE
+
+        Node().apply {
+            worldPosition = position.adjustPosition()
+            renderable = ShapeFactory.makeSphere(0.05f, Vector3.zero(), material)
+            setParent(transformableNode)
+        }
+    }
+
+    private fun Vector3.adjustPosition(): Vector3 =
+        Vector3.subtract(this.scaled(0.05f), Vector3(0.0f, 0.2f, 0.5f))
 
     private suspend fun get3DCoordinates(atomContainer: IAtomContainer): List<IAtom> {
         val atomContainer3D = withContext(Dispatchers.Default) {
