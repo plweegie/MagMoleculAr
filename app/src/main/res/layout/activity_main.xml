@@ -25,6 +25,7 @@
             android:inputType="text"
             android:maxLines="1"
             android:singleLine="true"
+            android:text="c1ccc(cc1)Cl"
             android:textColor="@color/colorPrimaryDark" />
 
     </com.google.android.material.textfield.TextInputLayout>

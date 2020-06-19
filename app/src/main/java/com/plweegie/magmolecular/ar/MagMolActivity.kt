@@ -103,9 +103,6 @@ class MagMolActivity : AppCompatActivity() {
         }
     }
 
-    private fun Vector3.adjustPosition(): Vector3 =
-        Vector3.subtract(this.scaled(0.05f), Vector3(0.0f, 0.2f, 0.5f))
-
     private suspend fun get3DCoordinates(atomContainer: IAtomContainer): List<IAtom> {
         val atomContainer3D = withContext(Dispatchers.Default) {
             modelBuilder.generate3DCoordinates(atomContainer, false)
@@ -118,3 +115,6 @@ class MagMolActivity : AppCompatActivity() {
         renderableJob.cancel()
     }
 }
+
+fun Vector3.adjustPosition(): Vector3 =
+    Vector3.subtract(this.scaled(0.05f), Vector3(0.0f, 0.2f, 0.5f))

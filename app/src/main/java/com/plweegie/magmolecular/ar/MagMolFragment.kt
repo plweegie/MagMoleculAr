@@ -25,7 +25,7 @@ class MagMolFragment : ArFragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        //TODO add OpenGL check
+        // TODO add OpenGL check
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -53,13 +53,16 @@ class MagMolFragment : ArFragment() {
                 override fun onUpdated(gesture: DragGesture?) {
                     endPosition = gesture?.position
                     val angle = getRotationAngle(startPosition, endPosition)
-                    val rotationAxis = gesture?.targetNode?.parent?.worldPosition
-                    val adjustedRotationAxis = Vector3(rotationAxis!!.x, rotationAxis.z, rotationAxis.y)
+                    val rotationAxis = gesture?.targetNode?.parent?.parent?.worldPosition
 
-                    gesture.targetNode?.parent?.localRotation = Quaternion.multiply(
-                        gesture.targetNode?.parent?.localRotation,
-                        Quaternion.axisAngle(rotationAxis, angle)
-                    )
+                    rotationAxis?.let { axis ->
+                        val adjustedRotationAxis = Vector3(axis.x, axis.y, axis.z)
+
+                        gesture.targetNode?.parent?.parent?.worldRotation = Quaternion.multiply(
+                            gesture.targetNode?.parent?.parent?.worldRotation,
+                            Quaternion.axisAngle(adjustedRotationAxis, angle)
+                        )
+                    }
                 }
 
                 override fun onFinished(gesture: DragGesture?) {}
