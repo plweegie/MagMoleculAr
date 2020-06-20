@@ -53,16 +53,11 @@ class MagMolFragment : ArFragment() {
                 override fun onUpdated(gesture: DragGesture?) {
                     endPosition = gesture?.position
                     val angle = getRotationAngle(startPosition, endPosition)
-                    val rotationAxis = gesture?.targetNode?.parent?.parent?.worldPosition
 
-                    rotationAxis?.let { axis ->
-                        val adjustedRotationAxis = Vector3(axis.x, axis.y, axis.z)
-
-                        gesture.targetNode?.parent?.parent?.worldRotation = Quaternion.multiply(
-                            gesture.targetNode?.parent?.parent?.worldRotation,
-                            Quaternion.axisAngle(adjustedRotationAxis, angle)
-                        )
-                    }
+                    gesture?.targetNode?.parent?.localRotation = Quaternion.multiply(
+                        gesture?.targetNode?.parent?.localRotation,
+                        Quaternion.axisAngle(Vector3.up().scaled(4.0f), angle)
+                    )
                 }
 
                 override fun onFinished(gesture: DragGesture?) {}

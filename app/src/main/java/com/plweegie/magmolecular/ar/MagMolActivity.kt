@@ -88,6 +88,7 @@ class MagMolActivity : AppCompatActivity() {
         }
         transformableNode = TransformableNode(arFragment.transformationSystem).apply {
             setParent(anchorNode)
+            worldPosition = position.adjustPosition()
         }
 
         arFragment.arSceneView.scene.addChild(anchorNode)
@@ -97,9 +98,9 @@ class MagMolActivity : AppCompatActivity() {
         loading_pb?.visibility = View.GONE
 
         Node().apply {
+            setParent(transformableNode)
             worldPosition = position.adjustPosition()
             renderable = ShapeFactory.makeSphere(0.05f, Vector3.zero(), material)
-            setParent(transformableNode)
         }
     }
 
@@ -117,4 +118,4 @@ class MagMolActivity : AppCompatActivity() {
 }
 
 fun Vector3.adjustPosition(): Vector3 =
-    Vector3.subtract(this.scaled(0.05f), Vector3(0.0f, 0.2f, 0.5f))
+    Vector3.subtract(this.scaled(0.05f), Vector3(0.0f, 0.2f, 0.7f))
