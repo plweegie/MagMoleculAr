@@ -12,6 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * Modifications (C) 2020 Jan K Szymanski
  */
 package com.google.ar.sceneform.ux;
 
@@ -87,29 +89,7 @@ public class TranslationController extends BaseTransformationController<DragGest
 
   @Override
   public boolean canStartTransformation(DragGesture gesture) {
-    Node targetNode = gesture.getTargetNode();
-    if (targetNode == null) {
-      return false;
-    }
-
-    BaseTransformableNode transformableNode = getTransformableNode();
-    if (targetNode != transformableNode && !targetNode.isDescendantOf(transformableNode)) {
-      return false;
-    }
-
-    if (!transformableNode.isSelected() && !transformableNode.select()) {
-      return false;
-    }
-
-    Vector3 initialForwardInWorld = transformableNode.getForward();
-    Node parent = transformableNode.getParent();
-    if (parent != null) {
-      initialForwardInLocal.set(parent.worldToLocalDirection(initialForwardInWorld));
-    } else {
-      initialForwardInLocal.set(initialForwardInWorld);
-    }
-
-    return true;
+    return false;
   }
 
   @Override

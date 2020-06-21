@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import com.google.ar.sceneform.math.Quaternion
 import com.google.ar.sceneform.math.Vector3
 import com.google.ar.sceneform.ux.*
+import kotlin.math.abs
 
 
 class MagMolFragment : ArFragment() {
@@ -50,29 +51,36 @@ class MagMolFragment : ArFragment() {
             var endPosition = Vector3.zero()
 
             it.setGestureEventListener(object : BaseGesture.OnGestureEventListener<DragGesture> {
-                override fun onUpdated(gesture: DragGesture?) {
-                    endPosition = gesture?.position
-                    val angle = getRotationAngle(startPosition, endPosition)
+                override fun onUpdated(gesture: DragGesture) {
+                    endPosition = gesture.position
 
-                    gesture?.targetNode?.parent?.localRotation = Quaternion.multiply(
-                        gesture?.targetNode?.parent?.localRotation,
-                        Quaternion.axisAngle(Vector3.up().scaled(4.0f), angle)
+                    gesture.targetNode?.parent?.localRotation = Quaternion.multiply(
+                        gesture.targetNode?.parent?.localRotation,
+                        getRotation(startPosition, endPosition)
                     )
                 }
 
-                override fun onFinished(gesture: DragGesture?) {}
+                override fun onFinished(gesture: DragGesture) {}
             })
         }
+
         transformationSystem.apply {
             addGestureRecognizer(dragGestureRecognizer)
+            //addGestureRecognizer(twistGestureRecognizer)
             selectionVisualizer = NullVisualizer()
         }
         return transformationSystem
     }
 
-    private fun getRotationAngle(startPosition: Vector3, endPosition: Vector3): Float {
-        val diff = endPosition.x - startPosition.x
-        return  (10 * diff) / displayMetrics.widthPixels
+    private fun getRotation(startPosition: Vector3, endPosition: Vector3): Quaternion {
+        val diffX = (endPosition.x - startPosition.x)
+        val diffY = (endPosition.y - startPosition.y)
+
+        return if (abs(diffX) >= abs(diffY)) {
+            Quaternion.axisAngle(Vector3.up().scaled(40.0f), diffX / displayMetrics.widthPixels)
+        } else {
+            Quaternion.axisAngle(Vector3.right().scaled(40.0f), diffY / displayMetrics.heightPixels)
+        }
     }
 
     class NullVisualizer : SelectionVisualizer {

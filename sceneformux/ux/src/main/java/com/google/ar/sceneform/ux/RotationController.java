@@ -12,6 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * Modifications (C) 2020 Jan K Szymanski
  */
 package com.google.ar.sceneform.ux;
 
@@ -25,7 +27,7 @@ import com.google.ar.sceneform.math.Vector3;
 public class RotationController extends BaseTransformationController<TwistGesture> {
 
   // Rate that the node rotates in degrees per degree of twisting.
-  private float rotationRateDegrees = 2.5f;
+  private float rotationRateDegrees = 1.0f;
 
   public RotationController(
       BaseTransformableNode transformableNode, TwistGestureRecognizer gestureRecognizer) {
@@ -42,13 +44,13 @@ public class RotationController extends BaseTransformationController<TwistGestur
 
   @Override
   public boolean canStartTransformation(TwistGesture gesture) {
-    return getTransformableNode().isSelected();
+    return true;
   }
 
   @Override
   public void onContinueTransformation(TwistGesture gesture) {
     float rotationAmount = -gesture.getDeltaRotationDegrees() * rotationRateDegrees;
-    Quaternion rotationDelta = new Quaternion(Vector3.up(), rotationAmount);
+    Quaternion rotationDelta = new Quaternion(Vector3.forward(), rotationAmount);
     Quaternion localrotation = getTransformableNode().getLocalRotation();
     localrotation = Quaternion.multiply(localrotation, rotationDelta);
     getTransformableNode().setLocalRotation(localrotation);
