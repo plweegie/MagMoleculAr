@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">MagMoleculAr</string>
     <string name="get_atoms">Get</string>
+    <string name="get_atoms_from_camera">Camera</string>
 </resources>

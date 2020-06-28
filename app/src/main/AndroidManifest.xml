@@ -23,7 +23,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ar.MagMolActivity" />
+
+        <activity
+            android:screenOrientation="portrait"
+            android:name=".ar.MagMolActivity" />
+
+        <activity
+            android:screenOrientation="portrait"
+            android:name=".ocr.TextRecognitionActivity" />
     </application>
 
 </manifest>

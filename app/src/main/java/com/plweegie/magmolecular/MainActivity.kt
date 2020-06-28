@@ -1,10 +1,12 @@
 package com.plweegie.magmolecular
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.lifecycle.Observer
 import com.plweegie.magmolecular.ar.MagMolActivity
+import com.plweegie.magmolecular.ocr.TextRecognitionActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -19,6 +21,10 @@ class MainActivity : AppCompatActivity() {
 
         get_atoms_btn?.setOnClickListener {
             viewModel.getSmilesForName(smiles_field?.text.toString())
+        }
+
+        get_atoms_from_camera_btn?.setOnClickListener {
+            Intent(this, TextRecognitionActivity::class.java).also { startActivity(it) }
         }
 
         viewModel.smiles.observe(this, Observer { smiles ->
