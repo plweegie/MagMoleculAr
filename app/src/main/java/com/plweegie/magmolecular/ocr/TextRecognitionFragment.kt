@@ -29,6 +29,10 @@ import kotlin.math.min
 @AndroidEntryPoint
 class TextRecognitionFragment : Fragment() {
 
+    interface FragmentListener {
+        fun onResultReceived(smiles: String)
+    }
+
     companion object {
         fun newInstance() = TextRecognitionFragment()
 
@@ -49,6 +53,7 @@ class TextRecognitionFragment : Fragment() {
     private var cameraProvider: ProcessCameraProvider? = null
     private var camera: Camera? = null
     private var imageAnalyzer: ImageAnalysis? = null
+    private var listener: FragmentListener? = null
 
     /** Blocking camera operations are performed using this executor */
     private lateinit var cameraExecutor: ExecutorService
@@ -78,6 +83,7 @@ class TextRecognitionFragment : Fragment() {
         // Initialize our background executor
         cameraExecutor = Executors.newSingleThreadExecutor()
         scopedExecutor = ScopedExecutor(cameraExecutor)
+        listener = activity as FragmentListener
 
         // Request camera permissions
         if (allPermissionsGranted()) {
@@ -134,7 +140,18 @@ class TextRecognitionFragment : Fragment() {
                     TextAnalyzer(requireContext(), viewModel.sourceText, viewModel.imageCropPercentages, lifecycle))
             }
 
-        viewModel.sourceText.observe(viewLifecycleOwner, Observer { src_text?.text = it })
+        viewModel.sourceText.observe(viewLifecycleOwner, Observer {
+            src_text?.text = it
+            if(it.isNotEmpty()) {
+                viewModel.getSmilesForCameraName(it)
+            }
+        })
+
+        viewModel.smiles.observe(viewLifecycleOwner, Observer { smiles ->
+            if (smiles.isNotEmpty()) {
+                listener?.onResultReceived(smiles)
+            }
+        })
 
         // Select back camera since text detection does not work with front camera
         val cameraSelector =
@@ -174,7 +191,6 @@ class TextRecognitionFragment : Fragment() {
         }
         return AspectRatio.RATIO_16_9
     }
-
 
     /**
      * Check if all permission specified in the manifest have been granted

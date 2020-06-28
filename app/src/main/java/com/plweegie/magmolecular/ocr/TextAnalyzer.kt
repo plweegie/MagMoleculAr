@@ -93,8 +93,16 @@ class TextAnalyzer(
 
     private suspend fun recognizeText(image: InputImage): Text? =
         try {
-            detector.process(image).await().also {
-                result.postValue(it.text)
+            detector.process(image).await().also { text ->
+                val textBlock = text.textBlocks.firstOrNull { it.lines.size == 1 }
+                textBlock?.let { block ->
+                    val casRegex = Regex("^[\\d]+-[\\d]+-[\\d]+$")
+                    val element = block.lines.first().elements.first()
+
+                    if (casRegex.matches(element.text)) {
+                        result.postValue(element.text)
+                    }
+                }
             }
         } catch (e: Exception) {
             Log.e(TAG, "Text recognition error", e)

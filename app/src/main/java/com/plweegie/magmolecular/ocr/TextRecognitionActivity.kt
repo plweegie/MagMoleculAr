@@ -7,7 +7,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 
 @AndroidEntryPoint
-class TextRecognitionActivity : AppCompatActivity() {
+class TextRecognitionActivity : AppCompatActivity(), TextRecognitionFragment.FragmentListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -18,5 +18,11 @@ class TextRecognitionActivity : AppCompatActivity() {
                 .replace(R.id.container, TextRecognitionFragment.newInstance())
                 .commitNow()
         }
+    }
+
+    override fun onResultReceived(smiles: String) {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.container, TextRecognitionLoadingFragment.newInstance(smiles))
+            .commitNow()
     }
 }

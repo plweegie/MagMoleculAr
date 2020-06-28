@@ -1,16 +1,18 @@
 package com.plweegie.magmolecular.ocr
 
+import android.util.Log
 import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
+import com.plweegie.magmolecular.nameresolver.ChemicalNameResolver
 import com.plweegie.magmolecular.ocr.TextRecognitionFragment.Companion.DESIRED_HEIGHT_CROP_PERCENT
 import com.plweegie.magmolecular.ocr.TextRecognitionFragment.Companion.DESIRED_WIDTH_CROP_PERCENT
 import com.plweegie.magmolecular.utils.SmoothedMutableLiveData
+import kotlinx.coroutines.launch
 
 
 class TextRecognitionViewModel @ViewModelInject constructor(
+    private val nameResolver: ChemicalNameResolver,
     @Assisted private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -27,4 +29,20 @@ class TextRecognitionViewModel @ViewModelInject constructor(
         .apply { value = Pair(DESIRED_HEIGHT_CROP_PERCENT, DESIRED_WIDTH_CROP_PERCENT) }
 
     val sourceText = SmoothedMutableLiveData<String>(SMOOTHING_DURATION)
+
+    val smiles: LiveData<String>
+        get() = _smiles
+
+    private val _smiles = MutableLiveData<String>()
+
+    fun getSmilesForCameraName(name: String) {
+        viewModelScope.launch {
+            try {
+                val result = nameResolver.resolveName(name)
+                _smiles.postValue(result)
+            } catch (e: Exception) {
+                Log.e("TextRecognitionViewModel", "Wrong substance name", e)
+            }
+        }
+    }
 }
