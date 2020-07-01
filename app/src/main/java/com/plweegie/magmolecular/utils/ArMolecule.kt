@@ -3,8 +3,8 @@ package com.plweegie.magmolecular.utils
 import android.content.Context
 import com.google.ar.sceneform.rendering.Material
 import com.google.ar.sceneform.rendering.MaterialFactory
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.future.asDeferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import org.openscience.cdk.interfaces.IAtom
 
 
@@ -20,12 +20,15 @@ class ArMolecule(atoms: List<IAtom>, private val context: Context) {
         }
     }
 
-    private val materials: List<Deferred<Material>> = arAtoms.map {
-        getMaterialAsync(it.color)
+    private suspend fun getMaterials(): List<Material> = coroutineScope {
+        arAtoms.map {
+            val material = async { getMaterialAsync(it.color) }
+            material.await()
+        }
     }
 
-    val renderableAtoms: List<Pair<ArAtom, Deferred<Material>>> = arAtoms zip materials
+    suspend fun getRenderableAtoms(): List<Pair<ArAtom, Material>> = arAtoms zip getMaterials()
 
-    private fun getMaterialAsync(color: Int): Deferred<Material> =
-        MaterialFactory.makeOpaqueWithColor(context, com.google.ar.sceneform.rendering.Color(color)).asDeferred()
+    private suspend fun getMaterialAsync(color: Int): Material =
+        MaterialFactory.makeOpaqueWithColor(context, com.google.ar.sceneform.rendering.Color(color))
 }

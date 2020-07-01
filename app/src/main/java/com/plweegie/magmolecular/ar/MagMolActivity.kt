@@ -62,7 +62,7 @@ class MagMolActivity : AppCompatActivity() {
         }
     }
 
-    private suspend fun parseSmiles(smiles: String?) {
+    private suspend fun parseSmiles(smiles: String?)  {
         loading_pb?.visibility = View.VISIBLE
 
         try {
@@ -73,9 +73,9 @@ class MagMolActivity : AppCompatActivity() {
 
             addCenterOfMass(Vector3(arMolecule.centerCoordX, arMolecule.centerCoordY, arMolecule.centerCoordZ))
 
-            arMolecule.renderableAtoms.forEach { (atom, material) ->
+            arMolecule.getRenderableAtoms().forEach { (atom, material) ->
                 val coords = Vector3(atom.xCoord, atom.yCoord, atom.zCoord)
-                renderAtom(coords, material.await())
+                renderAtom(coords, material)
             }
         } catch (e: InvalidSmilesException) {
             Toast.makeText(this, "Invalid SMILES", Toast.LENGTH_SHORT).show()
